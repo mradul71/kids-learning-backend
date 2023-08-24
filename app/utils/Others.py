@@ -9,3 +9,6 @@ def generate_password() -> str:
     random.shuffle(password)
     print(password)
     return "".join(password)
+
+def generate_random_id(length: int=25) -> str:
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))

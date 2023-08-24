@@ -49,3 +49,8 @@ class UserService:
         user_object: User = User(user_id)
         user_info: dict[str,str] = user_object.get_info()
         return {"id": user_id, **user_info}
+    
+    @staticmethod
+    def rename(user_id: str, new_name: str) -> None:
+        user_object: User = User(user_id)
+        user_object.rename(new_name)

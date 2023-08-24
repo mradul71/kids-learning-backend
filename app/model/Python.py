@@ -9,9 +9,8 @@ import firebase_admin
 load_dotenv()
 
 users_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'users')
-invitations_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'invitations')
 
-class User:
+class Python:
 
     """User data structure:
 
@@ -26,19 +25,30 @@ class User:
 
     __id: str =  None
 
-    def __init__(self, id: str) -> None:
+    def __init__(self, id, user_id):
         self.__id = id
+        self.__user_id = user_id
+        self.__projects_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'users').document(self.__user_id).collection(u'projects')
 
     def get_id(self) -> str:
         return self.__id
     
-    def create_user(self, email: str, name: str, password: str) -> None:
-        user: dict[str,str] = DevelopmentConfig.AUTH.create_user(
-            email=email,
-            password=password,
-            display_name=name
-        )
-        self.__id = user.uid
+    def create_project(self, source_code, language_id, stdin, result, errors):
+        check_existing: dict[str,str] = self.__projects_collection_ref.document(self.__id).get().to_dict()
+        if check_existing is None:
+            project_data = {
+                "source_code": source_code,
+                "language": language_id,
+                "datecreated": datetime.today().strftime('%Y-%m-%d'),
+                "stdin": stdin,
+                "result": result,
+                "error": errors
+            }
+            print("data", project_data)
+            self.__projects_collection_ref.document(self.__id).set(project_data)
+        else:
+            message = "Organization with this Id already exists. Please Try Again."
+            raise Exception(message)
         
     def create_user_metadata(self, email: str, name: str) -> None:
         check_existing = users_collection_ref.document(self.__id).get().to_dict()

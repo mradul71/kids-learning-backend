@@ -39,4 +39,16 @@ def user_info():
         return {"status" : "Success", "info": user_info}, 200
     except Exception as e:
         return {"status" : "Failure", "message": "error"}, 500
+    
+@user_router.route('/rename', methods=['POST'])
+@check_token
+def rename():
+    new_name = request.form.get("name")
+    user_id = request.user["user_id"]
+    try:
+        UserService.rename(user_id, new_name)
+        user_info, user_organizations = UserService.get_user_info(user_id)
+        return {"status" : "Success", "info": user_info, "organizations": user_organizations}, 200
+    except Exception as e:
+        return {"status" : "Failure", "message": f"{e}"}, 500
 

@@ -2,20 +2,27 @@ from flask import Blueprint, request
 from app.services.Python import PythonService
 from app.utils.Middleware import check_token
 
-admin_router = Blueprint('admin_router', __name__)
+python_project_router = Blueprint('python_project_router', __name__)
+querystring = {"base64_encoded":"true","fields":"*"}
 
-@admin_router.route('/submit', methods=['POST'])
-def user_signup():
-    email = request.form.get("email")
-    name = request.form.get("name")
-    print(email, name)
-    try:
-        PythonService.create_user(email, name)
-        return {"status" : "Success"}, 200
-    except Exception as e:
-        return {"status" : "Failure", "message": "error"}, 500
+@python_project_router.route('/submit-code', methods=['POST'])
+@check_token
+def save_project():
+    print("hello")
+    source_code = request.form.get("source_code")
+    language_id = request.form.get("language_id")
+    stdin = request.form.get("stdin")
+    result = request.form.get("result")
+    errors = request.form.get("errors")
+    user_id = request.user["user_id"]
+    print(source_code, language_id, stdin, result, errors, user_id)
+    # try:
+    PythonService.create_project(user_id, source_code, language_id, stdin, result, errors)
+    return {"status" : "Success"}, 200
+    # except Exception as e:
+    #     return {"status" : "Failure", "message": "error"}, 500
 
-@admin_router.route('/login', methods=['POST'])
+@python_project_router.route('/login', methods=['POST'])
 def user_login():
     email = request.form.get("email")
     password = request.form.get("password")
@@ -26,7 +33,7 @@ def user_login():
     except Exception as e:
         return {"status" : "Failure", "message": "error"}, 500
     
-@admin_router.route('/info', methods=['POST'])
+@python_project_router.route('/info', methods=['POST'])
 @check_token
 def user_info():
     user_id = request.user["user_id"]
@@ -36,7 +43,7 @@ def user_info():
     except Exception as e:
         return {"status" : "Failure", "message": "error"}, 500
     
-@admin_router.route('/rename', methods=['POST'])
+@python_project_router.route('/rename', methods=['POST'])
 @check_token
 def rename():
     new_name = request.form.get("name")
