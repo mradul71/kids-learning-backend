@@ -20,7 +20,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 cors = CORS(
     app, 
     resources={r'/*': {
-        'origins': ["http://localhost:3000","http://localhost","https://optiflowsolutions.com","https://www.optiflowsolutions.com","https://beta.optiflowsolutions.com"], 
+        'origins': ["http://localhost:3000","http://localhost"], 
         'methods': ["GET","POST","PUT","DELETE"]
     }}
 )

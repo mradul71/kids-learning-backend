@@ -1,18 +1,13 @@
 from flask import Blueprint, request
-# from app.core import limiter
-# from app.config import DevelopmentConfig
 from app.services.User import UserService
-# from app.common.Constants import Constants
 from app.utils.Middleware import check_token
 
 user_router = Blueprint('user_router', __name__)
-# limiter.limit("1000/day")(user_router)
 
 @user_router.route('/signup', methods=['POST'])
 def user_signup():
     email = request.form.get("email")
     name = request.form.get("name")
-    print(email, name)
     try:
         UserService.create_user(email, name)
         return {"status" : "Success"}, 200

@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from app.utils.Others import generate_password
 from app.config import DevelopmentConfig
 from datetime import datetime
-# from app.utils.SendEmail import send_signup_email, send_verification_email, send_password_reset_email, send_invitation_email, send_invitation_acceptance_email, send_invitation_rejection_email
+from app.utils.SendEmail import send_signup_email, send_password_reset_email
 load_dotenv()
 
 users_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'users')
@@ -14,17 +14,17 @@ class UserService:
     @staticmethod
     def create_user(email: str, name: str) -> tuple[str,str]:
         if email and name:
-            print("hello")
             password = generate_password()
             user_obj: User = User(None)
             user_obj.create_user(email, name, password)
             user_obj.create_user_metadata(email, name)
             user_id = user_obj.get_id()
-            # send_signup_email(email, password)
+            send_signup_email(email, password)
             return user_id
         else:
             raise Exception("INVALID_DATA: Please provide a valid email and name.")
         
+    @staticmethod
     def create_user_metadata(self, email: str, name: str) -> None:
         check_existing = users_collection_ref.document(self.__id).get().to_dict()
         if check_existing is None:
@@ -42,6 +42,7 @@ class UserService:
         user_obj: User = User(None)
         user_obj.check_credentials(email, password)
         user_obj.save_uuid(uuid)
+        # send_signup_email(email, password)
         return user_obj.get_custom_token()
     
     @staticmethod

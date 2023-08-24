@@ -2,3 +2,7 @@
 # Byte-compiled / optimized / DLL files
 **/__pycache__/
 __pycache__/
+app/__pycache__
+app/model/__pycache__
+app/router/__pycache__
+app/services/__pycache__

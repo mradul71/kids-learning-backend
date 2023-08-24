@@ -14,11 +14,33 @@ class PythonService:
 
     @staticmethod
     def create_project(user_id, source_code, language_id, stdin, result, errors):
-        print("bsdk", source_code, language_id, stdin)
-        # if source_code and language_id and stdin:
-        project_id = generate_random_id(25)
-        project_obj: Python = Python(project_id, user_id)
-        print(project_obj)
-        project_obj.create_project(source_code, language_id, stdin, result, errors)
-        # else:
-        #     raise Exception("INVALID_DATA: Please provide a valid email and name.")
+        if source_code and language_id:
+            project_id = generate_random_id(25)
+            project_obj: Python = Python(project_id, user_id)
+            project_obj.create_project(source_code, language_id, stdin, result, errors)
+        else:
+            raise Exception("INVALID_DATA: Please provide a valid email and name.")
+        
+    @staticmethod
+    def update_project(project_id, user_id, source_code, language_id, stdin, result, errors):
+        if project_id and source_code and language_id:
+            project_obj: Python = Python(project_id, user_id)
+            project_obj.update_project(source_code, language_id, stdin, result, errors)
+        else:
+            raise Exception("INVALID_DATA: Please provide a valid email and name.")
+        
+    @staticmethod
+    def get_all_projects(user_id):
+        if user_id:
+            project_obj: Python = Python(None, user_id)
+            project_obj.get_all_projects()
+        else:
+            raise Exception("INVALID_DATA: Please provide a valid email and name.")
+        
+    @staticmethod
+    def get_project_info(project_id, user_id):
+        if user_id:
+            project_obj: Python = Python(project_id, user_id)
+            project_obj.get_project_info()
+        else:
+            raise Exception("INVALID_DATA: Please provide a valid email and name.")
