@@ -36,17 +36,19 @@ class User:
         user: dict[str,str] = DevelopmentConfig.AUTH.create_user(
             email=email,
             password=password,
-            display_name=name
+            display_name=name,
         )
         self.__id = user.uid
         
-    def create_user_metadata(self, email: str, name: str) -> None:
+    def create_user_metadata(self, email: str, name: str, verification_link: str, password_reset_link: str) -> None:
         check_existing = users_collection_ref.document(self.__id).get().to_dict()
         if check_existing is None:
             user_data: dict[str,str] = {
                 "email": email,
                 "name": name,
-                "datecreated": datetime.today().strftime('%Y-%m-%d')
+                "datecreated": datetime.today().strftime('%Y-%m-%d'),
+                "password_reset_link": password_reset_link,
+                "verification_link": verification_link
             }
             users_collection_ref.document(self.__id).set(user_data)
         else:
@@ -57,30 +59,8 @@ class User:
         if user_dict is None: user_dict = {}
         return user_dict
     
-    # def rename(self, new_name: str) -> None:
-    #     users_collection_ref.document(self.__id).update({"name": new_name})
-    
-    # def get_name(self) -> str:
-    #     name_dict = users_collection_ref.document(self.__id).get(field_paths={'name'}).to_dict()
-    #     if name_dict is None: name_dict = {}
-    #     return name_dict.get('name', self.__id)
-    
-    # def get_email(self) -> str:
-    #     email_dict = users_collection_ref.document(self.__id).get(field_paths={'email'}).to_dict()
-    #     if email_dict is None: email_dict = {}
-    #     return email_dict.get('email', self.__id)
-    
-    # def get_name_email(self) -> tuple[str,str]:
-    #     name_email_dict = users_collection_ref.document(self.__id).get(field_paths={'name','email'}).to_dict()
-    #     if name_email_dict is None: name_email_dict = {}
-    #     return name_email_dict.get('name', self.__id), name_email_dict.get('email', self.__id)
-    
-    # @staticmethod
-    # def get_user_by_email(email: str) -> tuple[str,dict[str,str]]:
-    #     users: list[str] = users_collection_ref.where("email", "==", email).get()
-    #     for user in users:
-    #         return user.id, user.to_dict()
-    #     return None, {}
+    def rename(self, new_name: str) -> None:
+        users_collection_ref.document(self.__id).update({"name": new_name})
     
     def check_credentials(self, email, password):
         auth_url: str = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"

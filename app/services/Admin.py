@@ -3,30 +3,27 @@ from dotenv import load_dotenv
 from app.utils.Others import generate_password
 from app.config import DevelopmentConfig
 from datetime import datetime
-from app.utils.SendEmail import send_signup_email, send_password_reset_email
+
 load_dotenv()
 
-users_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'users')
-invitations_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'invitations')
+users_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'admins')
+
 class UserService:
 
     @staticmethod
     def create_user(email: str, name: str) -> tuple[str,str]:
         if email and name:
+            print("hello")
             password = generate_password()
-            print(password, "<- password")
             user_obj: User = User(None)
             user_obj.create_user(email, name, password)
-            verification_link: str = DevelopmentConfig.AUTH.generate_email_verification_link(email)
-            pass_reset_link: str = DevelopmentConfig.AUTH.generate_password_reset_link(email)
-            user_obj.create_user_metadata(email, name, verification_link, pass_reset_link)
+            user_obj.create_user_metadata(email, name)
             user_id = user_obj.get_id()
             # send_signup_email(email, password)
             return user_id
         else:
             raise Exception("INVALID_DATA: Please provide a valid email and name.")
         
-    @staticmethod
     def create_user_metadata(self, email: str, name: str) -> None:
         check_existing = users_collection_ref.document(self.__id).get().to_dict()
         if check_existing is None:
@@ -56,7 +53,3 @@ class UserService:
     def rename(user_id: str, new_name: str) -> None:
         user_object: User = User(user_id)
         user_object.rename(new_name)
-
-    @staticmethod
-    def reset_password(email: str) -> None:
-        return send_password_reset_email(email)
