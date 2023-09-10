@@ -8,6 +8,7 @@ from time import strftime, time
 # from app.router.HealthRoutes import health_router
 from app.router.UserRoutes import user_router
 from app.router.PythonProjectRoutes import python_project_router
+from app.router.BlockRoutes import block_project_router
 from app.router.AdminRoutes import admin_router
 # from app.router.OrganizationRoutes import organization_router
 # from app.router.ProjectRoutes import project_router
@@ -34,6 +35,7 @@ cors = CORS(
 # app.register_blueprint(health_router)
 app.register_blueprint(user_router, url_prefix="/user")
 app.register_blueprint(python_project_router, url_prefix="/python-compiler")
+app.register_blueprint(block_project_router, url_prefix="/block-coding")
 app.register_blueprint(admin_router, url_prefix="/admin")
 # app.register_blueprint(organization_router, url_prefix="/organization")
 # app.register_blueprint(project_router, url_prefix="/project")

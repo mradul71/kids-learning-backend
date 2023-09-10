@@ -1,17 +1,23 @@
 from flask import Blueprint, request
 from app.services.User import UserService
 from app.utils.Middleware import check_token
+from firebase_admin import auth
 
 admin_router = Blueprint('admin_router', __name__)
 
-@admin_router.route('/login', methods=['POST'])
-def user_login():
-    email = request.form.get("email")
-    password = request.form.get("password")
-    uuid = request.form.get("uuid")
+@admin_router.route('/all-users', methods=['GET'])
+def all_users():
     try:
-        custom_token = UserService.authenticate_user(email, password, uuid)
-        return {"status" : "Success", "id_token": custom_token.decode()}, 200
+        allUsers = []
+        page = auth.list_users()
+        while page:
+            userBatch = []
+            for user in page.users:
+                userData = UserService.get_user_info(user.uid)
+                userBatch.append(userData)
+            allUsers.append(userBatch)
+            page = page.get_next_page()
+        return {"status" : "Success", "all_users": allUsers}, 200
     except Exception as e:
         return {"status" : "Failure", "message": "error"}, 500
     

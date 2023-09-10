@@ -36,17 +36,19 @@ class User:
         user: dict[str,str] = DevelopmentConfig.AUTH.create_user(
             email=email,
             password=password,
-            display_name=name
+            display_name=name,
         )
         self.__id = user.uid
         
-    def create_user_metadata(self, email: str, name: str) -> None:
+    def create_user_metadata(self, email: str, name: str, verification_link: str, password_reset_link: str) -> None:
         check_existing = users_collection_ref.document(self.__id).get().to_dict()
         if check_existing is None:
             user_data: dict[str,str] = {
                 "email": email,
                 "name": name,
-                "datecreated": datetime.today().strftime('%Y-%m-%d')
+                "datecreated": datetime.today().strftime('%Y-%m-%d'),
+                "password_reset_link": password_reset_link,
+                "verification_link": verification_link
             }
             users_collection_ref.document(self.__id).set(user_data)
         else:
