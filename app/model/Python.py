@@ -42,6 +42,9 @@ class Python:
                 "file_name": file_name,
             }
             self.__projects_collection_ref.document(self.__id).set(project_data)
+            projects = self.get_all_projects()
+            new_project = {"file_name": file_name, "id": self.__id}
+            return projects, new_project
 
     def submit_project(self, source_code, language_id, stdin, result, errors, file_name):
         project_data = {

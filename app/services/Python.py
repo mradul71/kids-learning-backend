@@ -15,7 +15,7 @@ class PythonService:
     def create_project(user_id, file_name):
         file_id = generate_random_id(25)
         project_obj: Python = Python(file_id, user_id)
-        project_obj.create_project(file_name)
+        return project_obj.create_project(file_name)
 
     @staticmethod
     def submit_project(user_id, source_code, language_id, stdin, result, errors, file_name, file_id):

@@ -81,7 +81,6 @@ class Block:
     def get_all_projects(self):
         projects = self.__blocks_collection_ref.get()
         projects = [{"id": project.id, "file_name": project.to_dict()["file_name"]} for project in projects]
-        print(projects)
         return projects
     
     def get_project_info(self):

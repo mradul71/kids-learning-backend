@@ -11,8 +11,8 @@ def create_project():
     user_id = request.user["user_id"]
     file_name = request.form.get("file_name")
     try:
-        PythonService.create_project(user_id, file_name)
-        return {"status" : "Success"}, 200
+        projects, new_project = PythonService.create_project(user_id, file_name)
+        return {"status" : "Success", "projects": projects, "new_project": new_project}, 200
     except Exception as e:
         return {"status" : "Failure", "message": str(e)}, 500
 

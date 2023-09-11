@@ -3,53 +3,61 @@ from dotenv import load_dotenv
 from app.utils.Others import generate_password
 from app.config import DevelopmentConfig
 from datetime import datetime
-
+from app.services.Block import BlockService
+from app.services.Python import PythonService
+from app.utils.SendEmail import send_signup_email, send_password_reset_email
+from firebase_admin import auth
 load_dotenv()
 
-users_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'admins')
-
-class UserService:
+users_collection_ref = DevelopmentConfig.FIRESTORE_CLIENT.collection(u'users')
+class AdminService:
 
     @staticmethod
-    def create_user(email: str, name: str) -> tuple[str,str]:
-        if email and name:
-            print("hello")
-            password = generate_password()
-            user_obj: User = User(None)
-            user_obj.create_user(email, name, password)
-            user_obj.create_user_metadata(email, name)
-            user_id = user_obj.get_id()
-            # send_signup_email(email, password)
-            return user_id
-        else:
-            raise Exception("INVALID_DATA: Please provide a valid email and name.")
-        
-    def create_user_metadata(self, email: str, name: str) -> None:
-        check_existing = users_collection_ref.document(self.__id).get().to_dict()
-        if check_existing is None:
-            user_data: dict[str,str] = {
-                "email": email,
-                "name": name,
-                "datecreated": datetime.today().strftime('%Y-%m-%d')
-            }
-            users_collection_ref.document(self.__id).set(user_data)
-        else:
-            raise Exception("Another user with this user id already exists. Please Try Again.")
-        
-    @staticmethod
-    def authenticate_user(email: str, password: str, uuid: str) -> str:
-        user_obj: User = User(None)
-        user_obj.check_credentials(email, password)
-        user_obj.save_uuid(uuid)
-        return user_obj.get_custom_token()
+    def get_verified_users() -> tuple[dict[str,str],list[dict[str,str]]]:
+        docs = users_collection_ref.stream()
+        users = []
+        for doc in docs:
+            temp = doc.to_dict()
+            data = auth.get_user(doc.id)
+            if data.email_verified==True:
+                temp['id'] = doc.id
+                temp['pythonprojects'] = len(PythonService.get_all_projects(doc.id))
+                temp['blockprojects'] = len(BlockService.get_all_projects(doc.id))
+                users.append(temp)
+        return users
     
     @staticmethod
-    def get_user_info(user_id: str) -> tuple[dict[str,str],list[dict[str,str]]]:
-        user_object: User = User(user_id)
-        user_info: dict[str,str] = user_object.get_info()
-        return {"id": user_id, **user_info}
+    def get_unverified_users() -> tuple[dict[str,str],list[dict[str,str]]]:
+        page = auth.list_users()
+        users=[]
+        while page:
+            for user in page.users:
+                data = auth.get_user(user.uid)
+                if data.email_verified==False:
+                    temp={}
+                    temp['id'] = user.uid
+                    temp['email'] = data.email
+                    temp['name'] = data.display_name
+                    users.append(temp)
+            page = page.get_next_page()
+        return users
     
     @staticmethod
-    def rename(user_id: str, new_name: str) -> None:
-        user_object: User = User(user_id)
-        user_object.rename(new_name)
+    def verify_user(verify_user_email) -> tuple[dict[str,str],list[dict[str,str]]]:
+        verification_link: str = DevelopmentConfig.AUTH.generate_email_verification_link(verify_user_email)
+        return verification_link
+    
+    # @staticmethod
+    # def get_user_info(user_id: str) -> tuple[dict[str,str],list[dict[str,str]]]:
+    #     user_object: User = User(user_id)
+    #     user_info: dict[str,str] = user_object.get_info()
+    #     return {"id": user_id, **user_info}
+    
+    # @staticmethod
+    # def rename(user_id: str, new_name: str) -> None:
+    #     user_object: User = User(user_id)
+    #     user_object.rename(new_name)
+
+    # @staticmethod
+    # def reset_password(email: str) -> None:
+    #     return send_password_reset_email(email)

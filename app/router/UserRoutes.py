@@ -53,7 +53,6 @@ def reset_password():
     email = request.form.get("email")
     try:
         pass_rest_email = UserService.reset_password(email)
-        print(pass_rest_email)
         return {"status" : "Success", "pass_rest_email": pass_rest_email}, 200
     except Exception as e:
         return {"status" : "Failure", "message": f"{e}"}, 500
