@@ -28,7 +28,7 @@ def user_login():
 @user_router.route('/info', methods=['POST'])
 @check_token
 def user_info():
-    user_id = request.user["user_id"]
+    user_id = request.form.get("user_id")
     try:
         user_info = UserService.get_user_info(user_id)
         return {"status" : "Success", "info": user_info}, 200
